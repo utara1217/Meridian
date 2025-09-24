@@ -473,6 +473,45 @@
             gap: 12px;
             padding: 12px 0;
             border-bottom: 1px solid #f5f5f5;
+            cursor: move;
+            user-select: none;
+            transition: all 0.2s;
+        }
+
+        .task-item:hover {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding-left: 8px;
+            padding-right: 8px;
+        }
+
+        .task-item.dragging {
+            opacity: 0.5;
+            transform: rotate(2deg);
+        }
+
+        .task-item.drag-over {
+            border-top: 2px solid #000;
+        }
+
+        .drag-handle {
+            width: 16px;
+            height: 16px;
+            opacity: 0.3;
+            cursor: grab;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .task-item:hover .drag-handle {
+            opacity: 0.7;
+        }
+
+        .drag-handle:active {
+            cursor: grabbing;
         }
 
         .task-item:last-child {
@@ -1077,6 +1116,7 @@
                 this.loadSettings();
                 this.loadData();
                 this.bindEvents();
+                this.initializeDragAndDrop();
                 this.renderCalendar();
                 this.renderTodayTasks();
                 this.renderListScreen();
@@ -1396,6 +1436,72 @@
                         this.saveData();
                     }
                 }, this.syncEnabled ? 60000 : 30000); // 1 minute for GitHub sync, 30 seconds for local
+            }
+
+            // Drag and drop functionality
+            initializeDragAndDrop() {
+                let draggedElement = null;
+                let draggedData = null;
+
+                document.addEventListener('dragstart', (e) => {
+                    if (e.target.classList.contains('task-item')) {
+                        draggedElement = e.target;
+                        draggedData = {
+                            dateStr: e.target.dataset.date,
+                            taskId: parseInt(e.target.dataset.taskId)
+                        };
+                        e.target.classList.add('dragging');
+                        e.dataTransfer.effectAllowed = 'move';
+                    }
+                });
+
+                document.addEventListener('dragend', (e) => {
+                    if (e.target.classList.contains('task-item')) {
+                        e.target.classList.remove('dragging');
+                        document.querySelectorAll('.task-item').forEach(item => {
+                            item.classList.remove('drag-over');
+                        });
+                        draggedElement = null;
+                        draggedData = null;
+                    }
+                });
+
+                document.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    
+                    if (e.target.closest('.task-item') && draggedElement) {
+                        const targetElement = e.target.closest('.task-item');
+                        if (targetElement !== draggedElement) {
+                            // Remove drag-over class from all items
+                            document.querySelectorAll('.task-item').forEach(item => {
+                                item.classList.remove('drag-over');
+                            });
+                            // Add drag-over class to target
+                            targetElement.classList.add('drag-over');
+                        }
+                    }
+                });
+
+                document.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    
+                    const targetElement = e.target.closest('.task-item');
+                    if (targetElement && draggedElement && targetElement !== draggedElement && draggedData) {
+                        const targetDateStr = targetElement.dataset.date;
+                        const targetTaskId = parseInt(targetElement.dataset.taskId);
+                        
+                        // Only allow reordering within the same date
+                        if (draggedData.dateStr === targetDateStr) {
+                            this.reorderTask(draggedData.dateStr, draggedData.taskId, targetTaskId);
+                        }
+                    }
+                    
+                    // Clean up
+                    document.querySelectorAll('.task-item').forEach(item => {
+                        item.classList.remove('drag-over');
+                    });
+                });
             }
 
             triggerSave() {
@@ -1741,7 +1847,8 @@
                 }
 
                 const html = tasks.map(task => `
-                    <div class="task-item">
+                    <div class="task-item" draggable="true" data-date="${dateStr}" data-task-id="${task.id}">
+                        <div class="drag-handle">⋮⋮</div>
                         <div class="task-checkbox ${task.completed ? 'checked' : ''}" 
                              onclick="app.toggleTask('${dateStr}', ${task.id})">
                             ${task.completed ? '✓' : ''}
@@ -1820,7 +1927,8 @@
                                     ${tasks.length === 0 ? 
                                         '<div style="text-align: center; color: #666; padding: 20px; font-size: 14px;">タスクがありません</div>' :
                                         tasks.map(task => `
-                                            <div class="task-item">
+                                            <div class="task-item" draggable="true" data-date="${dateStr}" data-task-id="${task.id}">
+                                                <div class="drag-handle">⋮⋮</div>
                                                 <div class="task-checkbox ${task.completed ? 'checked' : ''}" 
                                                      onclick="app.toggleTask('${dateStr}', ${task.id})">
                                                     ${task.completed ? '✓' : ''}
