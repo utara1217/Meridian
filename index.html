@@ -4,9 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MERIDIAN</title>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <style>
         * {
             margin: 0;
@@ -25,6 +22,113 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 20px;
+        }
+
+        /* Settings Modal */
+        .settings-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1100;
+            padding: 20px;
+        }
+
+        .settings-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .settings-modal-content {
+            background: white;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .settings-header {
+            padding: 24px;
+            border-bottom: 1px solid #e1e1e1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .settings-form {
+            padding: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e1e1e1;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            border-color: #000;
+        }
+
+        .form-help {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .settings-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            padding: 24px;
+            border-top: 1px solid #e1e1e1;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: 1px solid #e1e1e1;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #000;
+            color: white;
+            border-color: #000;
+        }
+
+        .btn-primary:hover {
+            background: #333;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #f5f5f5;
         }
 
         /* Header */
@@ -53,6 +157,7 @@
         .nav-buttons {
             display: flex;
             gap: 8px;
+            align-items: center;
         }
 
         .nav-btn {
@@ -74,72 +179,7 @@
             width: 20px;
             height: 20px;
             fill: currentColor;
-        }
-
-        /* Data Menu */
-        .data-menu {
-            position: relative;
-        }
-
-        .data-dropdown {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: white;
-            border: 1px solid #e1e1e1;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            min-width: 200px;
-            z-index: 200;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: all 0.2s;
-        }
-
-        .data-dropdown.active {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        .data-dropdown-item {
-            padding: 12px 16px;
-            cursor: pointer;
-            border-bottom: 1px solid #f5f5f5;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: all 0.2s;
-        }
-
-        .data-dropdown-item:last-child {
-            border-bottom: none;
-        }
-
-        .data-dropdown-item:hover {
-            background: #f9f9f9;
-        }
-
-        .data-dropdown-item:first-child {
-            border-top-left-radius: 12px;
-            border-top-right-radius: 12px;
-        }
-
-        .data-dropdown-item:last-child {
-            border-bottom-left-radius: 12px;
-            border-bottom-right-radius: 12px;
-        }
-
-        .data-dropdown-item svg {
-            width: 16px;
-            height: 16px;
-            fill: #666;
-        }
-
-        .hidden-file-input {
-            display: none;
+            pointer-events: none;
         }
 
         .nav-btn.active {
@@ -148,6 +188,22 @@
         }
 
         .nav-btn:hover:not(.active) {
+            background: #f5f5f5;
+        }
+
+        .settings-btn {
+            padding: 12px;
+            background: white;
+            border: 1px solid #e1e1e1;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .settings-btn:hover {
             background: #f5f5f5;
         }
 
@@ -698,10 +754,10 @@
         .sync-status.syncing {
             border-color: #3b82f6;
             background: #eff6ff;
-            color: #1d4ed8;
+            color: #1e40af;
         }
 
-        .sync-status.offline {
+        .sync-status.local {
             border-color: #6b7280;
             background: #f9fafb;
             color: #374151;
@@ -841,26 +897,11 @@
                             <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/>
                         </svg>
                     </button>
-                    <button class="nav-btn" id="data-menu-btn">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                    <button class="settings-btn" onclick="app.showSettings()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.22,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.22,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.68 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z"/>
                         </svg>
                     </button>
-                    <div class="data-dropdown" id="data-dropdown">
-                        <div class="data-dropdown-item" onclick="app.exportData()">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
-                            </svg>
-                            データをエクスポート
-                        </div>
-                        <div class="data-dropdown-item" onclick="document.getElementById('import-file').click()">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
-                            </svg>
-                            データをインポート
-                        </div>
-                    </div>
-                    <input type="file" id="import-file" class="hidden-file-input" accept=".json" onchange="app.importData(this)">
                 </div>
             </div>
         </div>
@@ -898,7 +939,7 @@
                     <div class="today-section">
                         <div class="today-header">
                             <div class="today-header-top">
-                                <h2 class="today-title" id="today-title">9/22(月) Today`s Tasks</h2>
+                                <h2 class="today-title" id="today-title">9/22(月) Today's Tasks</h2>
                                 <div class="copy-all-section" id="copy-all-section">
                                     <button class="copy-all-btn" onclick="app.copyAllTasks()">コピー</button>
                                     <button class="clear-all-btn" onclick="app.clearAllTasks()">一括削除</button>
@@ -964,24 +1005,53 @@
         </div>
     </div>
 
+    <!-- Settings Modal -->
+    <div class="settings-modal" id="settings-modal">
+        <div class="settings-modal-content">
+            <div class="settings-header">
+                <h3>Sync Settings</h3>
+                <button class="close-modal" onclick="app.hideSettings()">×</button>
+            </div>
+            <div class="settings-form">
+                <div class="form-group">
+                    <label class="form-label">GitHub Personal Access Token</label>
+                    <input 
+                        type="password" 
+                        class="form-input" 
+                        id="github-token"
+                        placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+                    >
+                    <div class="form-help">
+                        GitHub設定でPersonal Access Tokenを作成し、'gist'スコープを有効にしてください
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Gist ID (Optional)</label>
+                    <input 
+                        type="text" 
+                        class="form-input" 
+                        id="gist-id"
+                        placeholder="自動で作成されます"
+                    >
+                    <div class="form-help">
+                        既存のGistを使用したい場合はIDを入力してください
+                    </div>
+                </div>
+            </div>
+            <div class="settings-actions">
+                <button class="btn btn-secondary" onclick="app.hideSettings()">キャンセル</button>
+                <button class="btn btn-primary" onclick="app.saveSettings()">保存</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Sync Status Indicator -->
     <div class="sync-status" id="sync-status">
         <span class="sync-spinner" id="sync-spinner" style="display: none;"></span>
-        <span id="sync-text">準備完了</span>
+        <span id="sync-text">ローカルモード</span>
     </div>
 
     <script>
-        // Firebase Configuration - Your actual Firebase config
-        const firebaseConfig = {
-            apiKey: "AIzaSyD1IvghM-zyNcwm9Xr_r4JtdI_sMAWs-Ag",
-            authDomain: "meridian-todo.firebaseapp.com",
-            databaseURL: "https://meridian-todo-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "meridian-todo",
-            storageBucket: "meridian-todo.firebasestorage.app",
-            messagingSenderId: "39808779315",
-            appId: "1:39808779315:web:c060fe21de32c7dfbc4f46"
-        };
-
         class LuxuryTodoApp {
             constructor() {
                 this.currentDate = new Date();
@@ -991,93 +1061,21 @@
                 this.tasks = {}; // { 'YYYY-MM-DD': [{ id, text, completed }] }
                 this.taskIdCounter = 1;
                 this.saveTimer = null;
-                this.syncStatus = 'offline';
+                this.syncStatus = 'local';
                 this.expandedItems = new Set(); // Track expanded list items
                 this.copiedTasks = []; // Store copied tasks
-                this.userId = null;
-                this.isOnline = navigator.onLine;
-                this.pendingChanges = false;
                 
-                this.initFirebase();
-            }
-
-            async initFirebase() {
-                try {
-                    // Initialize Firebase
-                    if (firebaseConfig.apiKey === "your-api-key-here") {
-                        // Firebase not configured, fall back to localStorage
-                        this.updateSyncStatus('offline', 'オフラインモード - Firebase未設定');
-                        this.init();
-                        return;
-                    }
-
-                    firebase.initializeApp(firebaseConfig);
-                    this.database = firebase.database();
-                    this.auth = firebase.auth();
-
-                    // Monitor connection state
-                    this.database.ref('.info/connected').on('value', (snapshot) => {
-                        if (snapshot.val() === true) {
-                            this.isOnline = true;
-                            this.updateSyncStatus('syncing', 'オンライン - 同期中');
-                            if (this.pendingChanges) {
-                                this.syncToFirebase();
-                            }
-                        } else {
-                            this.isOnline = false;
-                            this.updateSyncStatus('offline', 'オフライン');
-                        }
-                    });
-
-                    // Anonymous authentication
-                    await this.auth.signInAnonymously();
-                    this.userId = this.auth.currentUser.uid;
-                    
-                    this.setupFirebaseListeners();
-                    this.init();
-                    
-                } catch (error) {
-                    console.warn('Firebase initialization failed, using localStorage:', error);
-                    this.updateSyncStatus('offline', 'オフラインモード');
-                    this.init();
-                }
-            }
-
-            setupFirebaseListeners() {
-                if (!this.database || !this.userId) return;
-
-                // Listen for real-time changes
-                this.database.ref(`users/${this.userId}/tasks`).on('value', (snapshot) => {
-                    const firebaseTasks = snapshot.val() || {};
-                    
-                    // Only update if data is different to avoid infinite loops
-                    if (JSON.stringify(firebaseTasks) !== JSON.stringify(this.tasks)) {
-                        this.tasks = firebaseTasks;
-                        this.renderTodayTasks();
-                        this.renderCalendar();
-                        this.renderListScreen();
-                        this.updateSyncStatus('saved', '同期完了');
-                        
-                        setTimeout(() => {
-                            if (this.isOnline) {
-                                this.updateSyncStatus('syncing', 'オンライン');
-                            }
-                        }, 1500);
-                    }
-                });
-
-                this.database.ref(`users/${this.userId}/taskIdCounter`).on('value', (snapshot) => {
-                    const firebaseCounter = snapshot.val() || 1;
-                    if (firebaseCounter > this.taskIdCounter) {
-                        this.taskIdCounter = firebaseCounter;
-                    }
-                });
+                // GitHub sync settings
+                this.githubToken = '';
+                this.gistId = '';
+                this.syncEnabled = false;
+                
+                this.init();
             }
 
             init() {
-                if (!this.isOnline || !this.database) {
-                    this.loadDataLocal();
-                }
+                this.loadSettings();
+                this.loadData();
                 this.bindEvents();
                 this.renderCalendar();
                 this.renderTodayTasks();
@@ -1086,78 +1084,275 @@
                 this.startPeriodicSync();
             }
 
-            // Data Management & Sync
-            loadDataLocal() {
+            // Settings Management
+            loadSettings() {
                 try {
-                    // Fallback to localStorage when offline
+                    const settings = localStorage.getItem('meridianSyncSettings');
+                    if (settings) {
+                        const parsed = JSON.parse(settings);
+                        this.githubToken = parsed.githubToken || '';
+                        this.gistId = parsed.gistId || '';
+                        this.syncEnabled = !!(this.githubToken);
+                        
+                        if (this.syncEnabled) {
+                            this.updateSyncStatus('syncing', 'GitHub同期有効');
+                        } else {
+                            this.updateSyncStatus('local', 'ローカルモード');
+                        }
+                    }
+                } catch (error) {
+                    console.warn('Could not load sync settings:', error);
+                    this.updateSyncStatus('local', 'ローカルモード');
+                }
+            }
+
+            saveSettings() {
+                const token = document.getElementById('github-token').value.trim();
+                const gistId = document.getElementById('gist-id').value.trim();
+                
+                if (!token) {
+                    alert('GitHub Personal Access Tokenを入力してください');
+                    return;
+                }
+                
+                this.githubToken = token;
+                this.gistId = gistId;
+                this.syncEnabled = true;
+                
+                const settings = {
+                    githubToken: this.githubToken,
+                    gistId: this.gistId
+                };
+                
+                localStorage.setItem('meridianSyncSettings', JSON.stringify(settings));
+                this.hideSettings();
+                
+                // Initial sync
+                this.syncToGitHub();
+            }
+
+            showSettings() {
+                document.getElementById('github-token').value = this.githubToken;
+                document.getElementById('gist-id').value = this.gistId;
+                document.getElementById('settings-modal').classList.add('active');
+            }
+
+            hideSettings() {
+                document.getElementById('settings-modal').classList.remove('active');
+            }
+
+            // Data Management & Sync
+            async loadData() {
+                try {
+                    // Try to load from GitHub first if sync is enabled
+                    if (this.syncEnabled) {
+                        await this.loadFromGitHub();
+                    } else {
+                        // Load from localStorage
+                        const savedData = localStorage.getItem('meridianTodoData');
+                        if (savedData) {
+                            const data = JSON.parse(savedData);
+                            this.tasks = data.tasks || {};
+                            this.taskIdCounter = data.taskIdCounter || 1;
+                            this.updateSyncStatus('saved', 'データを読み込みました');
+                        }
+                    }
+                } catch (error) {
+                    console.warn('Could not load data:', error);
+                    this.updateSyncStatus('error', '読み込みに失敗しました');
+                }
+            }
+
+            async loadFromGitHub() {
+                if (!this.syncEnabled) return;
+
+                try {
+                    this.updateSyncStatus('syncing', 'GitHubから同期中...');
+                    
+                    let url;
+                    if (this.gistId) {
+                        url = `https://api.github.com/gists/${this.gistId}`;
+                    } else {
+                        // Find existing gist
+                        const gistsUrl = 'https://api.github.com/gists';
+                        const gistsResponse = await fetch(gistsUrl, {
+                            headers: {
+                                'Authorization': `Bearer ${this.githubToken}`,
+                                'Accept': 'application/vnd.github+json'
+                            }
+                        });
+                        
+                        if (gistsResponse.ok) {
+                            const gists = await gistsResponse.json();
+                            const meridianGist = gists.find(g => 
+                                g.files['meridian-todo-data.json'] || 
+                                g.description === 'Meridian Todo App Data'
+                            );
+                            
+                            if (meridianGist) {
+                                this.gistId = meridianGist.id;
+                                url = `https://api.github.com/gists/${this.gistId}`;
+                            }
+                        }
+                    }
+
+                    if (url) {
+                        const response = await fetch(url, {
+                            headers: {
+                                'Authorization': `Bearer ${this.githubToken}`,
+                                'Accept': 'application/vnd.github+json'
+                            }
+                        });
+
+                        if (response.ok) {
+                            const gist = await response.json();
+                            const dataFile = gist.files['meridian-todo-data.json'];
+                            if (dataFile) {
+                                const data = JSON.parse(dataFile.content);
+                                this.tasks = data.tasks || {};
+                                this.taskIdCounter = data.taskIdCounter || 1;
+                                this.updateSyncStatus('saved', 'GitHubから同期完了');
+                                return;
+                            }
+                        }
+                    }
+                    
+                    // If no gist found, load from localStorage
                     const savedData = localStorage.getItem('meridianTodoData');
                     if (savedData) {
                         const data = JSON.parse(savedData);
                         this.tasks = data.tasks || {};
                         this.taskIdCounter = data.taskIdCounter || 1;
-                        this.updateSyncStatus('saved', 'ローカルデータ読み込み完了');
                     }
+                    
                 } catch (error) {
-                    console.warn('Could not load local data:', error);
-                    this.updateSyncStatus('error', '読み込みに失敗しました');
+                    console.error('GitHub sync error:', error);
+                    this.updateSyncStatus('error', 'GitHub同期エラー');
+                    
+                    // Fallback to localStorage
+                    const savedData = localStorage.getItem('meridianTodoData');
+                    if (savedData) {
+                        const data = JSON.parse(savedData);
+                        this.tasks = data.tasks || {};
+                        this.taskIdCounter = data.taskIdCounter || 1;
+                    }
                 }
             }
 
-            saveData() {
-                // Always save locally as backup
-                this.saveDataLocal();
-                
-                // Sync to Firebase if online
-                if (this.isOnline && this.database && this.userId) {
-                    this.syncToFirebase();
-                } else {
-                    this.pendingChanges = true;
-                }
-            }
+            async syncToGitHub() {
+                if (!this.syncEnabled) return;
 
-            saveDataLocal() {
                 try {
+                    this.updateSyncStatus('syncing', 'GitHubに同期中...');
+                    
                     const data = {
                         tasks: this.tasks,
                         taskIdCounter: this.taskIdCounter,
                         lastSync: new Date().toISOString(),
-                        version: '2.0'
+                        version: '1.0'
                     };
+
+                    const gistData = {
+                        description: 'Meridian Todo App Data',
+                        public: false,
+                        files: {
+                            'meridian-todo-data.json': {
+                                content: JSON.stringify(data, null, 2)
+                            }
+                        }
+                    };
+
+                    let url = 'https://api.github.com/gists';
+                    let method = 'POST';
                     
-                    localStorage.setItem('meridianTodoData', JSON.stringify(data));
+                    if (this.gistId) {
+                        url = `https://api.github.com/gists/${this.gistId}`;
+                        method = 'PATCH';
+                    }
+
+                    const response = await fetch(url, {
+                        method: method,
+                        headers: {
+                            'Authorization': `Bearer ${this.githubToken}`,
+                            'Accept': 'application/vnd.github+json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(gistData)
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        if (!this.gistId) {
+                            this.gistId = result.id;
+                            // Save the gist ID
+                            const settings = {
+                                githubToken: this.githubToken,
+                                gistId: this.gistId
+                            };
+                            localStorage.setItem('meridianSyncSettings', JSON.stringify(settings));
+                        }
+                        
+                        this.updateSyncStatus('saved', 'GitHubに同期完了');
+                        setTimeout(() => {
+                            if (this.syncStatus === 'saved') {
+                                this.updateSyncStatus('syncing', 'GitHub同期有効');
+                            }
+                        }, 3000);
+                    } else {
+                        throw new Error(`GitHub API error: ${response.status}`);
+                    }
+                    
                 } catch (error) {
-                    console.error('Local save failed:', error);
+                    console.error('GitHub sync error:', error);
+                    this.updateSyncStatus('error', 'GitHub同期エラー');
+                    setTimeout(() => {
+                        if (this.syncStatus === 'error') {
+                            this.updateSyncStatus('syncing', 'GitHub同期有効');
+                        }
+                    }, 5000);
                 }
             }
 
-            async syncToFirebase() {
-                if (!this.database || !this.userId) return;
-
+            saveData() {
                 try {
-                    this.updateSyncStatus('syncing', '同期中...');
+                    this.updateSyncStatus('saving', '保存中...');
                     
-                    const updates = {
-                        [`users/${this.userId}/tasks`]: this.tasks,
-                        [`users/${this.userId}/taskIdCounter`]: this.taskIdCounter,
-                        [`users/${this.userId}/lastSync`]: new Date().toISOString()
+                    const data = {
+                        tasks: this.tasks,
+                        taskIdCounter: this.taskIdCounter,
+                        lastSync: new Date().toISOString(),
+                        version: '1.0'
                     };
-
-                    await this.database.ref().update(updates);
-                    this.pendingChanges = false;
                     
-                    setTimeout(() => {
-                        this.updateSyncStatus('saved', '同期完了');
+                    // Always save to localStorage as backup
+                    localStorage.setItem('meridianTodoData', JSON.stringify(data));
+                    
+                    // Sync to GitHub if enabled
+                    if (this.syncEnabled) {
+                        this.syncToGitHub();
+                    } else {
+                        // Simulate sync delay for user feedback
                         setTimeout(() => {
-                            if (this.isOnline) {
-                                this.updateSyncStatus('syncing', 'オンライン');
-                            }
-                        }, 1500);
-                    }, 300);
+                            this.updateSyncStatus('saved', '保存しました');
+                            setTimeout(() => {
+                                this.updateSyncStatus('local', 'ローカルモード');
+                            }, 2000);
+                        }, 300);
+                    }
                     
                 } catch (error) {
-                    console.error('Firebase sync failed:', error);
-                    this.updateSyncStatus('error', '同期に失敗しました');
-                    this.pendingChanges = true;
+                    console.error('Could not save data:', error);
+                    this.updateSyncStatus('error', '保存に失敗しました');
+                    
+                    // Fallback to cookie if localStorage fails
+                    try {
+                        const fallbackData = JSON.stringify(data);
+                        if (fallbackData.length < 4000) { // Cookie size limit
+                            document.cookie = `meridianTodoFallback=${encodeURIComponent(fallbackData)};expires=${new Date(Date.now() + 365*24*60*60*1000).toUTCString()};path=/`;
+                        }
+                    } catch (fallbackError) {
+                        console.error('Fallback save also failed:', fallbackError);
+                    }
                 }
             }
 
@@ -1170,7 +1365,7 @@
                 statusEl.className = `sync-status ${status}`;
                 textEl.textContent = text;
                 
-                if (status === 'saving') {
+                if (status === 'syncing' || status === 'saving') {
                     spinnerEl.style.display = 'block';
                 } else {
                     spinnerEl.style.display = 'none';
@@ -1178,40 +1373,36 @@
             }
 
             startPeriodicSync() {
-                // Reduced frequency for Firebase sync
+                // Auto-sync every 2 minutes if GitHub sync is enabled
                 setInterval(() => {
-                    if (this.pendingChanges && this.isOnline && this.database) {
-                        this.syncToFirebase();
+                    if (this.syncStatus !== 'syncing' && this.syncEnabled) {
+                        this.syncToGitHub();
+                    } else if (!this.syncEnabled && this.syncStatus !== 'saving') {
+                        // Auto-save locally every 30 seconds
+                        this.saveData();
                     }
-                }, 10000); // Every 10 seconds instead of 30
-                
-                // Monitor online/offline status
-                window.addEventListener('online', () => {
-                    this.isOnline = true;
-                    this.updateSyncStatus('syncing', '再接続中...');
-                    if (this.pendingChanges) {
-                        setTimeout(() => this.syncToFirebase(), 1000);
-                    }
-                });
-                
-                window.addEventListener('offline', () => {
-                    this.isOnline = false;
-                    this.updateSyncStatus('offline', 'オフライン');
-                });
+                }, this.syncEnabled ? 120000 : 30000);
             }
 
             triggerSave() {
                 clearTimeout(this.saveTimer);
                 this.saveTimer = setTimeout(() => {
                     this.saveData();
-                }, 500); // Faster response for real-time sync
+                }, 1000); // Debounce saves
             }
 
             bindEvents() {
-                // Navigation
+                // Navigation - 修正：e.currentTargetを使用
                 document.querySelectorAll('.nav-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
-                        this.switchScreen(e.target.dataset.screen);
+                        // e.currentTargetでボタン要素自体を取得
+                        const targetBtn = e.currentTarget;
+                        const screen = targetBtn.dataset.screen;
+                        
+                        // screenが有効な値かチェック
+                        if (screen) {
+                            this.switchScreen(screen);
+                        }
                     });
                 });
 
@@ -1263,36 +1454,44 @@
                     }
                 });
 
+                // Settings modal
+                document.getElementById('settings-modal').addEventListener('click', (e) => {
+                    if (e.target.id === 'settings-modal') {
+                        this.hideSettings();
+                    }
+                });
+
                 // Auto-save before page unload
                 window.addEventListener('beforeunload', () => {
                     this.saveData();
                 });
-
-                // Data menu functionality
-                document.getElementById('data-menu-btn').addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    this.toggleDataMenu();
-                });
-
-                // Close data menu when clicking outside
-                document.addEventListener('click', (e) => {
-                    const dropdown = document.getElementById('data-dropdown');
-                    if (!e.target.closest('.data-dropdown') && !e.target.closest('#data-menu-btn')) {
-                        dropdown.classList.remove('active');
-                    }
-                });
             }
 
             switchScreen(screen) {
+                // screenパラメータの妥当性チェックを追加
+                if (!screen || (screen !== 'top' && screen !== 'list')) {
+                    console.warn('Invalid screen parameter:', screen);
+                    return;
+                }
+
                 document.querySelectorAll('.nav-btn').forEach(btn => {
                     btn.classList.remove('active');
                 });
-                document.querySelector(`[data-screen="${screen}"]`).classList.add('active');
+                
+                // より安全な要素選択
+                const targetBtn = document.querySelector(`[data-screen="${screen}"]`);
+                if (targetBtn) {
+                    targetBtn.classList.add('active');
+                }
 
                 document.querySelectorAll('.screen').forEach(s => {
                     s.classList.remove('active');
                 });
-                document.getElementById(`${screen}-screen`).classList.add('active');
+                
+                const targetScreen = document.getElementById(`${screen}-screen`);
+                if (targetScreen) {
+                    targetScreen.classList.add('active');
+                }
 
                 if (screen === 'list') {
                     this.renderListScreen();
@@ -1808,93 +2007,6 @@
                 }
                 
                 this.triggerSave();
-            }
-
-            // Data Export/Import functionality
-            toggleDataMenu() {
-                const dropdown = document.getElementById('data-dropdown');
-                dropdown.classList.toggle('active');
-            }
-
-            exportData() {
-                try {
-                    const exportData = {
-                        version: '1.0',
-                        exportDate: new Date().toISOString(),
-                        tasks: this.tasks,
-                        taskIdCounter: this.taskIdCounter
-                    };
-
-                    const dataStr = JSON.stringify(exportData, null, 2);
-                    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-
-                    const link = document.createElement('a');
-                    link.href = URL.createObjectURL(dataBlob);
-                    link.download = `meridian-backup-${new Date().toISOString().split('T')[0]}.json`;
-                    
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-
-                    this.showTemporaryMessage('データをエクスポートしました');
-                    
-                    // Close the dropdown
-                    document.getElementById('data-dropdown').classList.remove('active');
-                } catch (error) {
-                    console.error('Export failed:', error);
-                    this.showTemporaryMessage('エクスポートに失敗しました');
-                }
-            }
-
-            importData(fileInput) {
-                const file = fileInput.files[0];
-                if (!file) return;
-
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    try {
-                        const importedData = JSON.parse(e.target.result);
-                        
-                        // Validate the imported data structure
-                        if (!importedData.tasks) {
-                            throw new Error('Invalid data format');
-                        }
-
-                        // Confirm overwrite
-                        const currentTaskCount = Object.keys(this.tasks).length;
-                        const importTaskCount = Object.keys(importedData.tasks).length;
-                        
-                        const confirmMessage = currentTaskCount > 0 
-                            ? `現在のデータ（${currentTaskCount}日分）を置き換えて、インポートデータ（${importTaskCount}日分）を読み込みますか？`
-                            : `インポートデータ（${importTaskCount}日分）を読み込みますか？`;
-
-                        if (confirm(confirmMessage)) {
-                            this.tasks = importedData.tasks || {};
-                            this.taskIdCounter = importedData.taskIdCounter || 1;
-
-                            // Save to localStorage
-                            this.saveData();
-
-                            // Re-render all views
-                            this.renderTodayTasks();
-                            this.renderCalendar();
-                            this.renderListScreen();
-
-                            this.showTemporaryMessage('データをインポートしました');
-                        }
-                    } catch (error) {
-                        console.error('Import failed:', error);
-                        this.showTemporaryMessage('無効なファイル形式です');
-                    }
-
-                    // Clear the file input
-                    fileInput.value = '';
-                    
-                    // Close the dropdown
-                    document.getElementById('data-dropdown').classList.remove('active');
-                };
-
-                reader.readAsText(file);
             }
         }
 
