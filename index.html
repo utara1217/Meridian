@@ -1144,7 +1144,7 @@
             // Data Management & Sync
             async loadData() {
                 try {
-                    // Try to load from GitHub first if sync is enabled
+                    // Always try to load from GitHub first if sync is enabled
                     if (this.syncEnabled) {
                         await this.loadFromGitHub();
                     } else {
@@ -1160,6 +1160,20 @@
                 } catch (error) {
                     console.warn('Could not load data:', error);
                     this.updateSyncStatus('error', '読み込みに失敗しました');
+                }
+            }
+
+            // Refresh data from GitHub
+            async refreshFromGitHub() {
+                if (!this.syncEnabled) return;
+                
+                try {
+                    await this.loadFromGitHub();
+                    this.renderTodayTasks();
+                    this.renderCalendar();
+                    this.renderListScreen();
+                } catch (error) {
+                    console.warn('Could not refresh from GitHub:', error);
                 }
             }
 
@@ -1373,15 +1387,15 @@
             }
 
             startPeriodicSync() {
-                // Auto-sync every 2 minutes if GitHub sync is enabled
+                // Auto-sync more frequently for better synchronization
                 setInterval(() => {
                     if (this.syncStatus !== 'syncing' && this.syncEnabled) {
-                        this.syncToGitHub();
+                        this.refreshFromGitHub();
                     } else if (!this.syncEnabled && this.syncStatus !== 'saving') {
                         // Auto-save locally every 30 seconds
                         this.saveData();
                     }
-                }, this.syncEnabled ? 120000 : 30000);
+                }, this.syncEnabled ? 60000 : 30000); // 1 minute for GitHub sync, 30 seconds for local
             }
 
             triggerSave() {
@@ -1464,6 +1478,20 @@
                 // Auto-save before page unload
                 window.addEventListener('beforeunload', () => {
                     this.saveData();
+                });
+
+                // Sync when page becomes visible (user returns from another tab/app)
+                document.addEventListener('visibilitychange', () => {
+                    if (!document.hidden && this.syncEnabled) {
+                        this.refreshFromGitHub();
+                    }
+                });
+
+                // Sync when window gains focus
+                window.addEventListener('focus', () => {
+                    if (this.syncEnabled) {
+                        this.refreshFromGitHub();
+                    }
                 });
             }
 
