@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MERIDIAN</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="logo">Meridian</h1>
+                <div class="nav-buttons">
+                    <button class="nav-btn active" data-screen="top">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                        </svg>
+                    </button>
+                    <button class="nav-btn" data-screen="list">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/>
+                        </svg>
+                    </button>
+                    <button class="settings-btn" onclick="app.showSettings()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.22,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.22,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.68 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <!-- Top Screen -->
+            <div class="screen active" id="top-screen">
+                <div class="top-screen">
+                    <!-- Calendar Section -->
+                    <div class="calendar-section">
+                        <div class="calendar-header">
+                            <h2 class="calendar-title">Calendar</h2>
+                            <div class="calendar-nav">
+                                <button class="calendar-nav-btn" id="prev-month">‹</button>
+                                <button class="calendar-nav-btn" id="next-month">›</button>
+                            </div>
+                        </div>
+                        <div class="calendar-grid">
+                            <div class="calendar-days">
+                                <div class="calendar-day-header">SUN</div>
+                                <div class="calendar-day-header">MON</div>
+                                <div class="calendar-day-header">TUE</div>
+                                <div class="calendar-day-header">WED</div>
+                                <div class="calendar-day-header">THU</div>
+                                <div class="calendar-day-header">FRI</div>
+                                <div class="calendar-day-header">SAT</div>
+                            </div>
+                            <div class="calendar-dates" id="calendar-dates"></div>
+                        </div>
+                    </div>
+
+                    <!-- Today Section -->
+                    <div class="today-section">
+                        <div class="today-header">
+                            <div class="today-header-top">
+                                <h2 class="today-title" id="today-title">9/22(月) Today's Tasks</h2>
+                                <div class="copy-all-section" id="copy-all-section">
+                                    <button class="copy-all-btn" onclick="app.copyAllTasks()">コピー</button>
+                                    <button class="clear-all-btn" onclick="app.clearAllTasks()">一括削除</button>
+                                </div>
+                                <div class="mobile-date-trigger" id="mobile-date-trigger">
+                                    <span id="mobile-current-date">9/22 (Mon)</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="task-list" id="today-tasks">
+                            <!-- Tasks will be populated here -->
+                        </div>
+                        <div class="add-task">
+                            <div class="add-task-form">
+                                <input 
+                                    type="text" 
+                                    class="add-task-input" 
+                                    id="new-task-input"
+                                    placeholder="新しいタスク"
+                                >
+                                <button class="add-task-btn" id="add-task-btn">追加</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- List Screen -->
+            <div class="screen" id="list-screen">
+                <div class="list-screen" id="list-container">
+                    <!-- List items will be populated here -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Mobile Calendar Modal -->
+    <div class="calendar-modal" id="calendar-modal">
+        <div class="calendar-modal-content">
+            <div class="calendar-modal-header">
+                <h3>Calendar</h3>
+                <button class="close-modal" id="close-modal">×</button>
+            </div>
+            <div class="calendar-grid">
+                <div class="calendar-nav" style="padding: 20px; display: flex; justify-content: space-between; align-items: center;">
+                    <button class="calendar-nav-btn" id="modal-prev-month">‹</button>
+                    <span id="modal-calendar-title"></span>
+                    <button class="calendar-nav-btn" id="modal-next-month">›</button>
+                </div>
+                <div style="padding: 0 20px 20px;">
+                    <div class="calendar-days">
+                        <div class="calendar-day-header">SUN</div>
+                        <div class="calendar-day-header">MON</div>
+                        <div class="calendar-day-header">TUE</div>
+                        <div class="calendar-day-header">WED</div>
+                        <div class="calendar-day-header">THU</div>
+                        <div class="calendar-day-header">FRI</div>
+                        <div class="calendar-day-header">SAT</div>
+                    </div>
+                    <div class="calendar-dates" id="modal-calendar-dates"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="settings-modal" id="settings-modal">
+        <div class="settings-modal-content">
+            <div class="settings-header">
+                <h3>Sync Settings</h3>
+                <button class="close-modal" onclick="app.hideSettings()">×</button>
+            </div>
+            <div class="settings-form">
+                <div class="form-group">
+                    <label class="form-label">GitHub Personal Access Token</label>
+                    <input 
+                        type="password" 
+                        class="form-input" 
+                        id="github-token"
+                        placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+                    >
+                    <div class="form-help">
+                        GitHub設定でPersonal Access Tokenを作成し、'gist'スコープを有効にしてください
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Gist ID (Optional)</label>
+                    <input 
+                        type="text" 
+                        class="form-input" 
+                        id="gist-id"
+                        placeholder="自動で作成されます"
+                    >
+                    <div class="form-help">
+                        既存のGistを使用したい場合はIDを入力してください
+                    </div>
+                </div>
+            </div>
+            <div class="settings-actions">
+                <button class="btn btn-secondary" onclick="app.hideSettings()">キャンセル</button>
+                <button class="btn btn-primary" onclick="app.saveSettings()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sync Status Indicator -->
+    <div class="sync-status" id="sync-status">
+        <span class="sync-spinner" id="sync-spinner" style="display: none;"></span>
+        <span id="sync-text">ローカルモード</span>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
