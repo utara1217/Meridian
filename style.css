@@ -125,6 +125,33 @@
             background: #f5f5f5;
         }
 
+        .logo img {
+            width: 80px; /* 任意 */
+            height: auto;
+            display: block;
+        }
+                /* SPサイズ調整（768px以下） */
+        @media (max-width: 768px) {
+            .logo img {
+            height: 40px; /* ← スマホでもしっかり見える大きさに */
+            }
+        
+            .header {
+            height: auto; /* 固定解除で自然な収まり */
+            padding: 16px 0;
+            }
+        
+            .header-content {
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            }
+        
+            .nav-buttons {
+            gap: 12px;
+            }
+        }
+
         /* Header */
         .header {
             background: white;
