@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MERIDIAN</title>
+    <title>Taskly</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,8 +13,6 @@
                 <h1 class="logo">
                     <img src="Taskly.svg" alt="Meridian Logo">
                   </h1>
-                  
-                
                 <div class="nav-buttons">
                     <button class="nav-btn active" data-screen="top">
                         <svg viewBox="0 0 24 24">
@@ -41,26 +39,51 @@
             <!-- Top Screen -->
             <div class="screen active" id="top-screen">
                 <div class="top-screen">
-                    <!-- Calendar Section -->
-                    <div class="calendar-section">
-                        <div class="calendar-header">
-                            <h2 class="calendar-title">Calendar</h2>
-                            <div class="calendar-nav">
-                                <button class="calendar-nav-btn" id="prev-month">‹</button>
-                                <button class="calendar-nav-btn" id="next-month">›</button>
+                    <!-- Left Column: Calendar + Memo -->
+                    <div class="left-column" id="left-column">
+                        <!-- Calendar Section -->
+                        <div class="calendar-section draggable-section" draggable="true" data-section="calendar">
+                            <div class="calendar-header">
+                                <div class="section-drag-handle">⋮⋮</div>
+                                <h2 class="calendar-title">Calendar</h2>
+                                <div class="calendar-nav">
+                                    <button class="calendar-nav-btn" id="prev-month">‹</button>
+                                    <button class="calendar-nav-btn" id="next-month">›</button>
+                                </div>
+                            </div>
+                            <div class="calendar-grid">
+                                <div class="calendar-days">
+                                    <div class="calendar-day-header">SUN</div>
+                                    <div class="calendar-day-header">MON</div>
+                                    <div class="calendar-day-header">TUE</div>
+                                    <div class="calendar-day-header">WED</div>
+                                    <div class="calendar-day-header">THU</div>
+                                    <div class="calendar-day-header">FRI</div>
+                                    <div class="calendar-day-header">SAT</div>
+                                </div>
+                                <div class="calendar-dates" id="calendar-dates"></div>
                             </div>
                         </div>
-                        <div class="calendar-grid">
-                            <div class="calendar-days">
-                                <div class="calendar-day-header">SUN</div>
-                                <div class="calendar-day-header">MON</div>
-                                <div class="calendar-day-header">TUE</div>
-                                <div class="calendar-day-header">WED</div>
-                                <div class="calendar-day-header">THU</div>
-                                <div class="calendar-day-header">FRI</div>
-                                <div class="calendar-day-header">SAT</div>
+
+                        <!-- Memo Section -->
+                        <div class="memo-section draggable-section" draggable="true" data-section="memo">
+                            <div class="memo-header">
+                                <div class="section-drag-handle">⋮⋮</div>
+                                <div class="memo-title">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M3,17V19H9V17H3M3,5V7H13V5H3M13,21V19H21V17H13V15H11V21H13M7,9V11H3V13H7V15H9V9H7M21,13V11H11V13H21M15,9H17V7H21V5H17V3H15V9Z"/>
+                                    </svg>
+                                    Note
+                                </div>
                             </div>
-                            <div class="calendar-dates" id="calendar-dates"></div>
+                            <div class="memo-content">
+                                <textarea 
+                                    class="memo-textarea" 
+                                    id="memo-textarea"
+                                    placeholder="この日のメモを入力..."
+                                ></textarea>
+                                <div class="memo-char-count" id="memo-char-count">0文字</div>
+                            </div>
                         </div>
                     </div>
 
@@ -68,13 +91,13 @@
                     <div class="today-section">
                         <div class="today-header">
                             <div class="today-header-top">
-                                <h2 class="today-title" id="today-title">9/22(月) Today's Tasks</h2>
+                                <h2 class="today-title" id="today-title">Today's Tasks</h2>
                                 <div class="copy-all-section" id="copy-all-section">
                                     <button class="copy-all-btn" onclick="app.copyAllTasks()">コピー</button>
                                     <button class="clear-all-btn" onclick="app.clearAllTasks()">一括削除</button>
                                 </div>
                                 <div class="mobile-date-trigger" id="mobile-date-trigger">
-                                    <span id="mobile-current-date">9/22 (Mon)</span>
+                                    <span id="mobile-current-date">Today</span>
                                 </div>
                             </div>
                         </div>
